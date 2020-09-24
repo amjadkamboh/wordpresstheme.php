@@ -48,6 +48,45 @@ register_taxonomy(
 );
 
 
+/**
+ * Setup query to show the ‘services’ 
+ */
+
+function smile_shortcode_cpt($attrs) {
+	$attrs = shortcode_atts( array(
+		'id' => '8'
+	), $attrs );
+
+	$args = array(  
+		'post_type' => 'smile',
+		'posts_per_page' => -1, 
+		'tax_query' => array(
+			array(
+				'taxonomy' => 'smile-galleries',
+				'field' => 'term_id',
+				'terms' => $attrs['id'],
+			)
+		)
+	);
+	$term = get_term($attrs['id']); //Example term ID
+	//print_r ($term);
+	$term_link = get_term_link( $term );
+	$loop = new WP_Query( $args ); 
+	$dotml = '';
+	$dotml .= '<div class="smile-galleries-section-single"><h3 class="wrap">'.$term->name.'</h3><div class="wrap"><a href="'.$term_link.'" class="wp-block-columnscusstom">';
+	if( $loop->have_posts() ) {
+		while ( $loop->have_posts() ) : $loop->the_post(); 
+		$dotml .= '<div  class="home-serv">'. get_the_post_thumbnail() .'</div>';
+		endwhile;
+
+		wp_reset_postdata(); 
+	}
+	$dotml .= '</a></div><div class="wp-block-button simple-text-btn wrap"><a class="wp-block-button__link" href="'.$term_link.'">see all '.$term->name.' Before &amp; Afters</a></div></div>';
+	return $dotml;
+}
+
+add_shortcode( 'smile_list', 'smile_shortcode_cpt' );
+
 // Our function for getting data of post
 function post_shortcode_init() {
 	$c_s_args = array(
